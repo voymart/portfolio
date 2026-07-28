@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Victor Cabezas — Data Analyst | Interactive Dashboards &amp; Sales Insights</title>
+<meta name="description" content="I turn raw CSV, Excel and Google Sheets files into interactive dashboards and a plain-English report that tells you what to do. Delivery in 48 hours.">
+<style>
+:root{
+  --ink:#12161c; --ink-2:#3d4653; --ink-3:#79828f;
+  --bg:#f4f5f7; --card:#ffffff; --line:#e4e7eb;
+  --accent:#1f6feb; --bad:#d1373a; --good:#177f5b;
+  --radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.5;padding:24px 16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto}
+
+header.hero{background:#12161c;color:#fff;border-radius:var(--radius);padding:38px 34px;margin-bottom:18px}
+header.hero h1{font-size:26px;font-weight:650;letter-spacing:-.4px;margin-bottom:6px}
+header.hero .role{font-size:15px;color:#9aa4b2;margin-bottom:22px}
+header.hero .pitch{font-size:16.5px;color:#dfe4ea;max-width:640px;line-height:1.55}
+header.hero .pitch b{color:#fff;font-weight:600}
+.meta{display:flex;gap:22px;flex-wrap:wrap;margin-top:24px;padding-top:20px;border-top:1px solid #262d37}
+.meta div{font-size:13px;color:#9aa4b2}
+.meta b{display:block;color:#fff;font-size:13.5px;font-weight:600;margin-bottom:2px}
+
+.sec{font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--ink-3);
+  margin:26px 0 12px;font-weight:650}
+
+.case{background:var(--card);border-radius:var(--radius);padding:24px 26px;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.case .tag{display:inline-block;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;
+  color:var(--ink-3);border:1px solid var(--line);padding:3px 9px;border-radius:20px;margin-bottom:12px}
+.case h2{font-size:18.5px;font-weight:650;letter-spacing:-.2px;margin-bottom:8px}
+.case .prob{font-size:14.5px;color:var(--ink-2);margin-bottom:18px}
+.case .prob b{color:var(--ink);font-weight:600}
+
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:16px;
+  padding:16px 0;border-top:1px solid #f0f2f4;border-bottom:1px solid #f0f2f4;margin-bottom:18px}
+.stats .s .v{font-size:22px;font-weight:700;letter-spacing:-.6px;line-height:1.15}
+.stats .s .l{font-size:11.5px;color:var(--ink-3);margin-top:3px}
+.v.bad{color:var(--bad)} .v.good{color:var(--good)}
+
+.links{display:flex;gap:10px;flex-wrap:wrap}
+.btn{display:inline-block;padding:9px 16px;border-radius:7px;font-size:13.5px;font-weight:600;
+  text-decoration:none;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.btn.p{background:var(--ink);color:#fff}
+.btn.s{background:#fff;color:var(--ink);border:1px solid var(--line)}
+
+.how{background:var(--card);border-radius:var(--radius);padding:24px 26px;margin-bottom:16px;
+  box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.how h3{font-size:16px;font-weight:650;margin-bottom:16px}
+.step{display:flex;gap:14px;padding:11px 0;border-bottom:1px solid #f0f2f4}
+.step:last-child{border-bottom:none;padding-bottom:0}
+.step .n{flex:0 0 22px;height:22px;border-radius:6px;background:#12161c;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:11.5px;font-weight:650}
+.step .t{font-size:14px;font-weight:600}
+.step .d{font-size:13.5px;color:var(--ink-2);margin-top:1px}
+
+.cta{background:#12161c;color:#fff;border-radius:var(--radius);padding:28px 30px;text-align:center}
+.cta h3{font-size:18px;font-weight:650;margin-bottom:8px}
+.cta p{font-size:14.5px;color:#9aa4b2;max-width:520px;margin:0 auto 20px}
+.cta a{display:inline-block;background:#fff;color:#12161c;padding:11px 22px;border-radius:7px;
+  font-size:14px;font-weight:650;text-decoration:none}
+
+footer{text-align:center;font-size:12px;color:var(--ink-3);padding:22px 0 6px}
+
+@media(max-width:640px){
+  header.hero{padding:28px 22px}
+  header.hero h1{font-size:22px}
+  .case,.how{padding:20px 20px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <h1>Victor Cabezas</h1>
+  <div class="role">Data Analyst — Interactive Dashboards &amp; Sales Insights</div>
+  <p class="pitch">
+    Your data already has the answer. Most spreadsheets just hide it.
+    I turn raw CSV, Excel or Google Sheets files into an <b>interactive dashboard</b>
+    and a <b>one-page report</b> that says what is broken and what it costs you.
+  </p>
+  <div class="meta">
+    <div><b>48 hours</b>Standard turnaround</div>
+    <div><b>Single file</b>Opens in any browser, nothing to install</div>
+    <div><b>SQL · Python · Excel</b>pandas, Google Sheets, HTML dashboards</div>
+  </div>
+</header>
+
+<div class="sec">Selected work</div>
+
+<section class="case">
+  <span class="tag">E-commerce · Logistics</span>
+  <h2>Delivery Performance &amp; Review Risk</h2>
+  <p class="prob">
+    A marketplace was losing reviews and did not know why. Across <b>95,824 delivered orders</b>,
+    late delivery turned out to be the single biggest driver of 1-star ratings — and the damage
+    was not gradual. It collapsed past a specific day.
+  </p>
+  <div class="stats">
+    <div class="s"><div class="v bad">7×</div><div class="l">More 1-star reviews when late</div></div>
+    <div class="s"><div class="v bad">$484K</div><div class="l">Revenue exposed</div></div>
+    <div class="s"><div class="v good">$397K</div><div class="l">Recoverable with a 3-day buffer</div></div>
+    <div class="s"><div class="v">87%</div><div class="l">Of delay traced to the carrier</div></div>
+  </div>
+  <div class="links">
+    <a class="btn p" href="olist.html">Open dashboard</a>
+    <a class="btn s" href="olist_findings_report.pdf">Read the 1-page report</a>
+  </div>
+</section>
+
+<section class="case">
+  <span class="tag">Retail · Pricing</span>
+  <h2>Discount Policy &amp; Profit Leakage</h2>
+  <p class="prob">
+    A retailer was growing revenue while margin drifted down. Across <b>9,994 order lines</b>,
+    there was no discount above 20% anywhere in the catalogue that made money — and those lines
+    were quietly erasing half the company's profit.
+  </p>
+  <div class="stats">
+    <div class="s"><div class="v bad">-$135K</div><div class="l">Profit destroyed by deep discounts</div></div>
+    <div class="s"><div class="v bad">18.7%</div><div class="l">Of order lines lose money</div></div>
+    <div class="s"><div class="v good">+62%</div><div class="l">Profit lift from a 20% cap</div></div>
+    <div class="s"><div class="v">16%</div><div class="l">Of revenue causing the leak</div></div>
+  </div>
+  <div class="links">
+    <a class="btn p" href="superstore.html">Open dashboard</a>
+    <a class="btn s" href="superstore_findings_report.pdf">Read the 1-page report</a>
+  </div>
+</section>
+
+<div class="sec">How I work</div>
+
+<section class="how">
+  <h3>Four steps, forty-eight hours</h3>
+  <div class="step"><div class="n">1</div><div>
+    <div class="t">Data audit first</div>
+    <div class="d">I tell you what is usable and what is broken before you commit to anything.</div></div></div>
+  <div class="step"><div class="n">2</div><div>
+    <div class="t">Clean and document</div>
+    <div class="d">Duplicates, nulls, wrong types, mismatched keys. You get the cleaned files back.</div></div></div>
+  <div class="step"><div class="n">3</div><div>
+    <div class="t">Build the dashboard</div>
+    <div class="d">The 3–5 KPIs that matter for your business, with filters and sortable detail.</div></div></div>
+  <div class="step"><div class="n">4</div><div>
+    <div class="t">Write the findings</div>
+    <div class="d">One page. Three problems, each quantified in money, each with a next step.</div></div></div>
+</section>
+
+<section class="cta">
+  <h3>Send me a sample of your data</h3>
+  <p>I will tell you in one message what I would pull out of it. No charge, no commitment.</p>
+  <a href="https://www.linkedin.com/in/victorcabezas-data">Get in touch on LinkedIn</a>
+</section>
+
+<footer>
+  Both cases built from public datasets. Methodology and scope are documented inside each report.
+</footer>
+
+</div>
+</body>
+</html>
