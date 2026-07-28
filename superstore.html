@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discount Policy &amp; Profit Leakage | US Retail Superstore</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1"></script>
+<style>
+:root{
+  --ink:#12161c; --ink-2:#3d4653; --ink-3:#79828f;
+  --bg:#f4f5f7; --card:#ffffff; --line:#e4e7eb;
+  --accent:#1f6feb; --bad:#d1373a; --warn:#e8890c; --good:#177f5b;
+  --radius:10px; --gap:16px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);color:var(--ink);line-height:1.45;padding:24px 16px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1240px;margin:0 auto}
+
+header.top{background:#12161c;color:#fff;border-radius:var(--radius);padding:22px 26px;margin-bottom:var(--gap);
+  display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:16px}
+header.top h1{font-size:19px;font-weight:650;letter-spacing:-.2px}
+header.top .sub{font-size:13px;color:#9aa4b2;margin-top:4px}
+.filters{display:flex;gap:10px;flex-wrap:wrap}
+.filters label{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.6px;color:#8b95a3;margin-bottom:4px}
+.filters select{padding:7px 11px;border:1px solid #2c333d;border-radius:6px;background:#1c222b;color:#fff;font-size:13px;min-width:150px;cursor:pointer}
+
+.headline{background:var(--card);border-radius:var(--radius);border-left:4px solid var(--bad);
+  padding:18px 22px;margin-bottom:var(--gap);box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.headline .eyebrow{font-size:10.5px;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-3);margin-bottom:6px}
+.headline p{font-size:15.5px;color:var(--ink-2)}
+.headline strong{color:var(--ink);font-weight:650}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:var(--gap);margin-bottom:var(--gap)}
+.kpi{background:var(--card);border-radius:var(--radius);padding:18px 20px;box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.kpi .lbl{font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--ink-3);margin-bottom:8px}
+.kpi .val{font-size:29px;font-weight:700;letter-spacing:-1px;line-height:1.1}
+.kpi .note{font-size:12.5px;color:var(--ink-3);margin-top:6px}
+.kpi .note.bad{color:var(--bad);font-weight:550}
+.kpi .note.good{color:var(--good);font-weight:550}
+
+.grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+.grid2b{display:grid;grid-template-columns:1fr 1fr;gap:var(--gap);margin-bottom:var(--gap)}
+.card{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.card h3{font-size:14px;font-weight:650;margin-bottom:3px}
+.card .cap{font-size:12.5px;color:var(--ink-3);margin-bottom:16px}
+.chartbox{position:relative;height:300px}
+.chartbox.tall{height:360px}
+
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;padding:9px 10px;border-bottom:2px solid var(--line);font-size:10.5px;
+  text-transform:uppercase;letter-spacing:.6px;color:var(--ink-3);cursor:pointer;user-select:none;white-space:nowrap}
+thead th:hover{color:var(--ink)}
+thead th.num,tbody td.num{text-align:right}
+tbody td{padding:9px 10px;border-bottom:1px solid #f0f2f4}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#fafbfc}
+tbody td.neg{color:var(--bad);font-weight:600}
+.pill{display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600}
+.pill.r{background:#fdeaea;color:var(--bad)}
+.pill.y{background:#fdf2e0;color:var(--warn)}
+.pill.g{background:#e6f4ef;color:var(--good)}
+
+.recs{background:var(--card);border-radius:var(--radius);padding:20px 22px;box-shadow:0 1px 2px rgba(16,24,40,.06);margin-bottom:var(--gap)}
+.recs h3{font-size:14px;font-weight:650;margin-bottom:14px}
+.rec{display:flex;gap:14px;padding:13px 0;border-bottom:1px solid #f0f2f4}
+.rec:last-child{border-bottom:none;padding-bottom:0}
+.rec .n{flex:0 0 24px;height:24px;border-radius:6px;background:#12161c;color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:650}
+.rec .t{font-size:14px;font-weight:600;margin-bottom:3px}
+.rec .d{font-size:13px;color:var(--ink-2)}
+.rec .m{font-size:13px;color:var(--good);font-weight:600;white-space:nowrap;margin-left:auto;padding-left:12px}
+
+footer{font-size:11.5px;color:var(--ink-3);text-align:center;padding:10px 0 4px}
+footer b{color:var(--ink-2)}
+@media(max-width:900px){.grid2,.grid2b{grid-template-columns:1fr}}
+@media print{body{background:#fff;padding:0}.filters{display:none}.card,.kpi{box-shadow:none;border:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div>
+    <h1>Discount Policy &amp; Profit Leakage</h1>
+    <div class="sub">US retail superstore &middot; 9,994 order lines &middot; 5,009 orders &middot; 2014&ndash;2017</div>
+  </div>
+  <div class="filters">
+    <div><label for="fCat">Category</label>
+      <select id="fCat"><option value="all">All categories</option></select></div>
+    <div><label for="fReg">Region</label>
+      <select id="fReg"><option value="all">All regions</option></select></div>
+  </div>
+</header>
+
+<div class="headline">
+  <div class="eyebrow">Headline finding</div>
+  <p>Every discount above <strong>20%</strong> loses money. Those lines are only <strong>16%</strong> of revenue but destroy <strong>$135K</strong> of profit &mdash; against a company-wide profit of $286K. Capping discounts at 20% would raise profit by <strong>62%</strong> without touching a single price below that line.</p>
+</div>
+
+<section class="kpis">
+  <div class="kpi"><div class="lbl">Revenue</div><div class="val" id="k1">&mdash;</div><div class="note" id="k1n"></div></div>
+  <div class="kpi"><div class="lbl">Profit</div><div class="val" id="k2">&mdash;</div><div class="note" id="k2n"></div></div>
+  <div class="kpi"><div class="lbl">Loss-making lines</div><div class="val" id="k3" style="color:var(--bad)">&mdash;</div><div class="note bad" id="k3n"></div></div>
+  <div class="kpi"><div class="lbl">Destroyed by deep discounts</div><div class="val" id="k4" style="color:var(--bad)">&mdash;</div><div class="note bad">on 1,393 lines discounted over 20%</div></div>
+  <div class="kpi"><div class="lbl">Recoverable</div><div class="val" id="k5" style="color:var(--good)">&mdash;</div><div class="note good">+62% profit, by capping discount at 20%</div></div>
+</section>
+
+<section class="grid2">
+  <div class="card">
+    <h3>Margin collapses past the 20% discount line</h3>
+    <div class="cap">Profit margin at each discount level. Every band above 20% is negative, and it never recovers.</div>
+    <div class="chartbox tall"><canvas id="cDisc"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Where the discounted revenue sits</h3>
+    <div class="cap">Revenue by discount band. Two thirds of sales are already at 0&ndash;20% and profitable.</div>
+    <div class="chartbox tall"><canvas id="cVol"></canvas></div>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:var(--gap)">
+  <h3>Sub-categories: what sells versus what earns</h3>
+  <div class="cap">Bars above the line earn. Bars below it sell volume and destroy profit. Tables is the clearest case: 9% of all revenue, negative on every dollar.</div>
+  <div class="chartbox tall"><canvas id="cSub"></canvas></div>
+</section>
+
+<section class="grid2b">
+  <div class="card">
+    <h3>The worst states are the most discounted states</h3>
+    <div class="cap">Ten states lose money. Their average discount runs 28&ndash;39%, against 11% in the West.</div>
+    <div class="chartbox"><canvas id="cState"></canvas></div>
+  </div>
+  <div class="card">
+    <h3>Revenue is growing, margin is not</h3>
+    <div class="cap">Monthly revenue and profit margin. Sales climb while the margin drifts down.</div>
+    <div class="chartbox"><canvas id="cMonth"></canvas></div>
+  </div>
+</section>
+
+<section class="card" style="margin-bottom:var(--gap)">
+  <h3>Sub-category detail</h3>
+  <div class="cap">Click any column header to sort.</div>
+  <table id="tbl">
+    <thead><tr>
+      <th data-k="Sub-Category">Sub-category</th>
+      <th data-k="Category">Category</th>
+      <th data-k="sales" class="num">Revenue</th>
+      <th data-k="sales_share" class="num">% of revenue</th>
+      <th data-k="profit" class="num">Profit</th>
+      <th data-k="margin" class="num">Margin</th>
+      <th data-k="avg_disc" class="num">Avg discount</th>
+      <th data-k="status" class="num">Status</th>
+    </tr></thead><tbody></tbody>
+  </table>
+</section>
+
+<section class="recs">
+  <h3>What to do about it</h3>
+  <div class="rec"><div class="n">1</div>
+    <div><div class="t">Cap discounts at 20% and require approval above it</div>
+    <div class="d">There is no discount band above 20% with a positive margin. At 30% the margin is already &minus;10%; at 70% it is &minus;99%. This is a policy change, not a pricing study.</div></div>
+    <div class="m">+$179K profit</div></div>
+  <div class="rec"><div class="n">2</div>
+    <div><div class="t">Fix Tables, Bookcases and Machines before touching anything else</div>
+    <div class="d">Tables alone is $207K of revenue at a &minus;8.6% margin, discounted 26% on average. Machines carries a 31% average discount for a 1.8% margin. Three sub-categories account for the bulk of the leak.</div></div>
+    <div class="m">$396K revenue in scope</div></div>
+  <div class="rec"><div class="n">3</div>
+    <div><div class="t">Audit the Central region, not the products</div>
+    <div class="d">Central averages a 24% discount and returns a 7.9% margin. The West averages 11% and returns 14.9% on more revenue. Same catalogue, different discipline.</div></div>
+    <div class="m">7 points of margin gap</div></div>
+</section>
+
+<footer>
+  Source: Sample Superstore public dataset &middot; 9,994 order lines, Jan 2014 &ndash; Dec 2017 &middot; Built by <b>Victor Cabezas</b>
+</footer>
+</div>
+
+<script>
+const D = {"totals": {"sales": 2297200.8603, "profit": 286397.0217, "margin": 12.467217240315605, "lines": 9994, "orders": 5009, "customers": 793, "products": 1862, "loss_lines": 1871, "loss_amount": -156131.2857, "win_amount": 442528.3074}, "discount": [{"Discount": 0.0, "lines": 4798, "sales": 1087908.47, "profit": 320987.6032, "margin": 29.505}, {"Discount": 0.1, "lines": 94, "sales": 54369.351, "profit": 9029.177, "margin": 16.6071}, {"Discount": 0.15, "lines": 52, "sales": 27558.5215, "profit": 1418.9915, "margin": 5.149}, {"Discount": 0.2, "lines": 3657, "sales": 764594.368, "profit": 90337.306, "margin": 11.8151}, {"Discount": 0.3, "lines": 227, "sales": 103226.655, "profit": -10369.2774, "margin": -10.0452}, {"Discount": 0.32, "lines": 27, "sales": 14493.4588, "profit": -2391.1377, "margin": -16.498}, {"Discount": 0.4, "lines": 206, "sales": 116417.784, "profit": -23057.0504, "margin": -19.8054}, {"Discount": 0.45, "lines": 11, "sales": 5484.974, "profit": -2493.1111, "margin": -45.4535}, {"Discount": 0.5, "lines": 66, "sales": 58918.54, "profit": -20506.4281, "margin": -34.8047}, {"Discount": 0.6, "lines": 138, "sales": 6644.7, "profit": -5944.6552, "margin": -89.4646}, {"Discount": 0.7, "lines": 418, "sales": 40620.282, "profit": -40075.3569, "margin": -98.6585}, {"Discount": 0.8, "lines": 300, "sales": 16963.756, "profit": -30539.0392, "margin": -180.0252}], "subcat": [{"Category": "Furniture", "Sub-Category": "Bookcases", "sales": 114879.996, "profit": -3472.556, "lines": 228, "avg_disc": 0.211, "margin": -3.023, "sales_share": 5.001}, {"Category": "Furniture", "Sub-Category": "Chairs", "sales": 328449.103, "profit": 26590.166, "lines": 617, "avg_disc": 0.17, "margin": 8.096, "sales_share": 14.298}, {"Category": "Furniture", "Sub-Category": "Furnishings", "sales": 91705.164, "profit": 13059.144, "lines": 957, "avg_disc": 0.138, "margin": 14.24, "sales_share": 3.992}, {"Category": "Furniture", "Sub-Category": "Tables", "sales": 206965.532, "profit": -17725.481, "lines": 319, "avg_disc": 0.261, "margin": -8.564, "sales_share": 9.009}, {"Category": "Office Supplies", "Sub-Category": "Appliances", "sales": 107532.161, "profit": 18138.005, "lines": 466, "avg_disc": 0.167, "margin": 16.868, "sales_share": 4.681}, {"Category": "Office Supplies", "Sub-Category": "Art", "sales": 27118.792, "profit": 6527.787, "lines": 796, "avg_disc": 0.075, "margin": 24.071, "sales_share": 1.181}, {"Category": "Office Supplies", "Sub-Category": "Binders", "sales": 203412.733, "profit": 30221.763, "lines": 1523, "avg_disc": 0.372, "margin": 14.857, "sales_share": 8.855}, {"Category": "Office Supplies", "Sub-Category": "Envelopes", "sales": 16476.402, "profit": 6964.177, "lines": 254, "avg_disc": 0.08, "margin": 42.268, "sales_share": 0.717}, {"Category": "Office Supplies", "Sub-Category": "Fasteners", "sales": 3024.28, "profit": 949.518, "lines": 217, "avg_disc": 0.082, "margin": 31.397, "sales_share": 0.132}, {"Category": "Office Supplies", "Sub-Category": "Labels", "sales": 12486.312, "profit": 5546.254, "lines": 364, "avg_disc": 0.069, "margin": 44.419, "sales_share": 0.544}, {"Category": "Office Supplies", "Sub-Category": "Paper", "sales": 78479.206, "profit": 34053.569, "lines": 1370, "avg_disc": 0.075, "margin": 43.392, "sales_share": 3.416}, {"Category": "Office Supplies", "Sub-Category": "Storage", "sales": 223843.608, "profit": 21278.826, "lines": 846, "avg_disc": 0.075, "margin": 9.506, "sales_share": 9.744}, {"Category": "Office Supplies", "Sub-Category": "Supplies", "sales": 46673.538, "profit": -1189.1, "lines": 190, "avg_disc": 0.077, "margin": -2.548, "sales_share": 2.032}, {"Category": "Technology", "Sub-Category": "Accessories", "sales": 167380.318, "profit": 41936.636, "lines": 775, "avg_disc": 0.078, "margin": 25.055, "sales_share": 7.286}, {"Category": "Technology", "Sub-Category": "Copiers", "sales": 149528.03, "profit": 55617.825, "lines": 68, "avg_disc": 0.162, "margin": 37.196, "sales_share": 6.509}, {"Category": "Technology", "Sub-Category": "Machines", "sales": 189238.631, "profit": 3384.757, "lines": 115, "avg_disc": 0.306, "margin": 1.789, "sales_share": 8.238}, {"Category": "Technology", "Sub-Category": "Phones", "sales": 330007.054, "profit": 44515.731, "lines": 889, "avg_disc": 0.155, "margin": 13.489, "sales_share": 14.366}], "category": [{"Category": "Furniture", "sales": 741999.795, "profit": 18451.273, "avg_disc": 0.174, "margin": 2.487}, {"Category": "Office Supplies", "sales": 719047.032, "profit": 122490.801, "avg_disc": 0.157, "margin": 17.035}, {"Category": "Technology", "sales": 836154.033, "profit": 145454.948, "avg_disc": 0.132, "margin": 17.396}], "region": [{"Region": "Central", "sales": 501239.891, "profit": 39706.362, "avg_disc": 0.24, "lines": 2323, "margin": 7.922}, {"Region": "East", "sales": 678781.24, "profit": 91522.78, "avg_disc": 0.145, "lines": 2848, "margin": 13.483}, {"Region": "South", "sales": 391721.905, "profit": 46749.43, "avg_disc": 0.147, "lines": 1620, "margin": 11.934}, {"Region": "West", "sales": 725457.824, "profit": 108418.449, "avg_disc": 0.109, "lines": 3203, "margin": 14.945}], "segment": [{"Segment": "Consumer", "sales": 1161401.345, "profit": 134119.209, "avg_disc": 0.158, "margin": 11.548}, {"Segment": "Corporate", "sales": 706146.367, "profit": 91979.134, "avg_disc": 0.158, "margin": 13.026}, {"Segment": "Home Office", "sales": 429653.148, "profit": 60298.678, "avg_disc": 0.147, "margin": 14.034}], "states_worst": [{"State": "Texas", "sales": 170188.05, "profit": -25729.36, "avg_disc": 0.37, "margin": -15.12}, {"State": "Ohio", "sales": 78258.14, "profit": -16971.38, "avg_disc": 0.32, "margin": -21.69}, {"State": "Pennsylvania", "sales": 116511.91, "profit": -15559.96, "avg_disc": 0.33, "margin": -13.35}, {"State": "Illinois", "sales": 80166.1, "profit": -12607.89, "avg_disc": 0.39, "margin": -15.73}, {"State": "North Carolina", "sales": 55603.16, "profit": -7490.91, "avg_disc": 0.28, "margin": -13.47}, {"State": "Colorado", "sales": 32108.12, "profit": -6527.86, "avg_disc": 0.32, "margin": -20.33}, {"State": "Tennessee", "sales": 30661.87, "profit": -5341.69, "avg_disc": 0.29, "margin": -17.42}, {"State": "Arizona", "sales": 35282.0, "profit": -3427.92, "avg_disc": 0.3, "margin": -9.72}, {"State": "Florida", "sales": 89473.71, "profit": -3399.3, "avg_disc": 0.3, "margin": -3.8}, {"State": "Oregon", "sales": 17431.15, "profit": -1190.47, "avg_disc": 0.29, "margin": -6.83}], "monthly": [{"month": "2014-01", "sales": 14236.9, "profit": 2450.19, "margin": 17.21}, {"month": "2014-02", "sales": 4519.89, "profit": 862.31, "margin": 19.08}, {"month": "2014-03", "sales": 55691.01, "profit": 498.73, "margin": 0.9}, {"month": "2014-04", "sales": 28295.34, "profit": 3488.84, "margin": 12.33}, {"month": "2014-05", "sales": 23648.29, "profit": 2738.71, "margin": 11.58}, {"month": "2014-06", "sales": 34595.13, "profit": 4976.52, "margin": 14.39}, {"month": "2014-07", "sales": 33946.39, "profit": -841.48, "margin": -2.48}, {"month": "2014-08", "sales": 27909.47, "profit": 5318.1, "margin": 19.05}, {"month": "2014-09", "sales": 81777.35, "profit": 8328.1, "margin": 10.18}, {"month": "2014-10", "sales": 31453.39, "profit": 3448.26, "margin": 10.96}, {"month": "2014-11", "sales": 78628.72, "profit": 9292.13, "margin": 11.82}, {"month": "2014-12", "sales": 69545.62, "profit": 8983.57, "margin": 12.92}, {"month": "2015-01", "sales": 18174.08, "profit": -3281.01, "margin": -18.05}, {"month": "2015-02", "sales": 11951.41, "profit": 2813.85, "margin": 23.54}, {"month": "2015-03", "sales": 38726.25, "profit": 9732.1, "margin": 25.13}, {"month": "2015-04", "sales": 34195.21, "profit": 4187.5, "margin": 12.25}, {"month": "2015-05", "sales": 30131.69, "profit": 4667.87, "margin": 15.49}, {"month": "2015-06", "sales": 24797.29, "profit": 3335.56, "margin": 13.45}, {"month": "2015-07", "sales": 28765.32, "profit": 3288.65, "margin": 11.43}, {"month": "2015-08", "sales": 36898.33, "profit": 5355.81, "margin": 14.52}, {"month": "2015-09", "sales": 64595.92, "profit": 8209.16, "margin": 12.71}, {"month": "2015-10", "sales": 31404.92, "profit": 2817.37, "margin": 8.97}, {"month": "2015-11", "sales": 75972.56, "profit": 12474.79, "margin": 16.42}, {"month": "2015-12", "sales": 74919.52, "profit": 8016.97, "margin": 10.7}, {"month": "2016-01", "sales": 18542.49, "profit": 2824.82, "margin": 15.23}, {"month": "2016-02", "sales": 22978.82, "profit": 5004.58, "margin": 21.78}, {"month": "2016-03", "sales": 51715.88, "profit": 3611.97, "margin": 6.98}, {"month": "2016-04", "sales": 38750.04, "profit": 2977.81, "margin": 7.68}, {"month": "2016-05", "sales": 56987.73, "profit": 8662.15, "margin": 15.2}, {"month": "2016-06", "sales": 40344.53, "profit": 4750.38, "margin": 11.77}, {"month": "2016-07", "sales": 39261.96, "profit": 4432.88, "margin": 11.29}, {"month": "2016-08", "sales": 31115.37, "profit": 2062.07, "margin": 6.63}, {"month": "2016-09", "sales": 73410.02, "profit": 9328.66, "margin": 12.71}, {"month": "2016-10", "sales": 59687.74, "profit": 16243.14, "margin": 27.21}, {"month": "2016-11", "sales": 79411.97, "profit": 4011.41, "margin": 5.05}, {"month": "2016-12", "sales": 96999.04, "profit": 17885.31, "margin": 18.44}, {"month": "2017-01", "sales": 43971.37, "profit": 7140.44, "margin": 16.24}, {"month": "2017-02", "sales": 20301.13, "profit": 1613.87, "margin": 7.95}, {"month": "2017-03", "sales": 58872.35, "profit": 14751.89, "margin": 25.06}, {"month": "2017-04", "sales": 36521.54, "profit": 933.29, "margin": 2.56}, {"month": "2017-05", "sales": 44261.11, "profit": 6342.58, "margin": 14.33}, {"month": "2017-06", "sales": 52981.73, "profit": 8223.34, "margin": 15.52}, {"month": "2017-07", "sales": 45264.42, "profit": 6952.62, "margin": 15.36}, {"month": "2017-08", "sales": 63120.89, "profit": 9040.96, "margin": 14.32}, {"month": "2017-09", "sales": 87866.65, "profit": 10991.56, "margin": 12.51}, {"month": "2017-10", "sales": 77776.92, "profit": 9275.28, "margin": 11.93}, {"month": "2017-11", "sales": 118447.82, "profit": 9690.1, "margin": 8.18}, {"month": "2017-12", "sales": 83829.32, "profit": 8483.35, "margin": 10.12}]};
+const C={ink:'#12161c',accent:'#1f6feb',bad:'#d1373a',warn:'#e8890c',good:'#177f5b',grid:'#eceef1',mute:'#79828f'};
+Chart.defaults.font.family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+Chart.defaults.font.size=11.5; Chart.defaults.color=C.mute;
+
+const money=v=>{const a=Math.abs(v);const s=v<0?'-':'';
+  return a>=1e6?s+'$'+(a/1e6).toFixed(2)+'M':a>=1e3?s+'$'+Math.round(a/1e3)+'K':s+'$'+Math.round(a)};
+const num=v=>Math.round(v).toLocaleString('en-US');
+let ch={};
+
+// populate filters
+[...new Set(D.subcat.map(s=>s.Category))].sort().forEach(c=>{
+  const o=document.createElement('option');o.value=c;o.textContent=c;document.getElementById('fCat').appendChild(o)});
+D.region.forEach(r=>{
+  const o=document.createElement('option');o.value=r.Region;o.textContent=r.Region;document.getElementById('fReg').appendChild(o)});
+
+function scope(){
+  const cat=document.getElementById('fCat').value, reg=document.getElementById('fReg').value;
+  let subs=D.subcat, sales=D.totals.sales, profit=D.totals.profit, note='all categories & regions';
+  if(cat!=='all'){ subs=subs.filter(s=>s.Category===cat);
+    sales=subs.reduce((a,s)=>a+s.sales,0); profit=subs.reduce((a,s)=>a+s.profit,0); note=cat; }
+  if(reg!=='all'){
+    const r=D.region.find(x=>x.Region===reg);
+    const f=r.sales/D.totals.sales;
+    sales=sales*f; profit=(cat==='all')?r.profit:profit*f;
+    note=(cat==='all'?'':cat+' \u00b7 ')+reg+' region';
+  }
+  return {subs,sales,profit,note,cat,reg};
+}
+
+function kpis(){
+  const s=scope();
+  document.getElementById('k1').textContent=money(s.sales);
+  document.getElementById('k1n').textContent=s.note;
+  document.getElementById('k2').textContent=money(s.profit);
+  const mg=100*s.profit/s.sales;
+  const e2=document.getElementById('k2n');
+  e2.textContent=mg.toFixed(1)+'% margin';
+  e2.className='note'+(mg<5?' bad':mg>15?' good':'');
+  document.getElementById('k3').textContent=(100*D.totals.loss_lines/D.totals.lines).toFixed(1)+'%';
+  document.getElementById('k3n').textContent=num(D.totals.loss_lines)+' of '+num(D.totals.lines)+' lines \u00b7 '+money(D.totals.loss_amount);
+  document.getElementById('k4').textContent='-$135K';
+  document.getElementById('k5').textContent='+$179K';
+}
+
+function chDisc(){
+  const g=D.discount.filter(x=>x.lines>=10);
+  if(ch.d)ch.d.destroy();
+  ch.d=new Chart(document.getElementById('cDisc'),{type:'bar',
+    data:{labels:g.map(x=>Math.round(x.Discount*100)+'%'),
+      datasets:[{label:'Profit margin',data:g.map(x=>x.margin),
+        backgroundColor:g.map(x=>x.margin<0?C.bad:x.margin<15?C.warn:C.good),borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:c=>{const r=g[c.dataIndex];return [c.parsed.y.toFixed(1)+'% margin',
+          num(r.lines)+' lines \u00b7 '+money(r.sales)+' revenue \u00b7 '+money(r.profit)+' profit']}}}},
+      scales:{y:{grid:{color:C.grid},ticks:{callback:v=>v+'%'},title:{display:true,text:'Profit margin',font:{size:10.5}}},
+        x:{grid:{display:false},title:{display:true,text:'Discount applied',font:{size:10.5}}}}}});
+}
+
+function chVol(){
+  const g=D.discount.filter(x=>x.lines>=10);
+  if(ch.v)ch.v.destroy();
+  ch.v=new Chart(document.getElementById('cVol'),{type:'bar',
+    data:{labels:g.map(x=>Math.round(x.Discount*100)+'%'),
+      datasets:[{label:'Revenue',data:g.map(x=>x.sales),
+        backgroundColor:g.map(x=>x.margin<0?'#f2b8b9':'#9db4d4'),borderRadius:3}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{
+        label:c=>money(c.parsed.x)+'  \u00b7  '+num(g[c.dataIndex].lines)+' lines'}}},
+      scales:{x:{grid:{color:C.grid},ticks:{callback:v=>money(v)}},
+        y:{grid:{display:false},title:{display:true,text:'Discount',font:{size:10.5}}}}}});
+}
+
+function chSub(){
+  const s=scope();
+  const rows=[...s.subs].sort((a,b)=>b.profit-a.profit);
+  if(ch.s)ch.s.destroy();
+  ch.s=new Chart(document.getElementById('cSub'),{
+    data:{labels:rows.map(r=>r['Sub-Category']),
+      datasets:[
+        {type:'bar',label:'Profit',data:rows.map(r=>r.profit),yAxisID:'y',
+         backgroundColor:rows.map(r=>r.profit<0?C.bad:C.good),borderRadius:3,order:2},
+        {type:'line',label:'Revenue',data:rows.map(r=>r.sales),yAxisID:'y2',
+         borderColor:C.ink,backgroundColor:C.ink,borderWidth:1.6,tension:.25,pointRadius:2.5,pointHoverRadius:5,order:1}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:14,usePointStyle:true,pointStyle:'circle'}},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+money(c.parsed.y),
+          afterBody:i=>{const r=rows[i[0].dataIndex];
+            return ['Margin: '+r.margin.toFixed(1)+'%','Avg discount: '+(r.avg_disc*100).toFixed(0)+'%']}}}},
+      scales:{y:{grid:{color:C.grid},ticks:{callback:v=>money(v)},title:{display:true,text:'Profit',font:{size:10.5}}},
+        y2:{position:'right',grid:{display:false},ticks:{callback:v=>money(v)},title:{display:true,text:'Revenue',font:{size:10.5}}},
+        x:{grid:{display:false},ticks:{maxRotation:50,minRotation:50,font:{size:10}}}}}});
+}
+
+function chState(){
+  const st=D.states_worst.slice(0,8);
+  if(ch.t)ch.t.destroy();
+  ch.t=new Chart(document.getElementById('cState'),{
+    data:{labels:st.map(x=>x.State),
+      datasets:[
+        {type:'bar',label:'Profit',data:st.map(x=>x.profit),yAxisID:'y',backgroundColor:C.bad,borderRadius:3},
+        {type:'line',label:'Avg discount',data:st.map(x=>x.avg_disc*100),yAxisID:'y2',
+         borderColor:C.warn,backgroundColor:C.warn,borderWidth:2,tension:.25,pointRadius:3}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:14,usePointStyle:true,pointStyle:'circle'}},
+        tooltip:{callbacks:{label:c=>c.datasetIndex===0?'Profit: '+money(c.parsed.y):'Avg discount: '+c.parsed.y.toFixed(0)+'%'}}},
+      scales:{y:{grid:{color:C.grid},ticks:{callback:v=>money(v)}},
+        y2:{position:'right',min:0,max:45,grid:{display:false},ticks:{callback:v=>v+'%'}},
+        x:{grid:{display:false},ticks:{maxRotation:45,minRotation:45,font:{size:10}}}}}});
+}
+
+function chMonth(){
+  const m=D.monthly;
+  if(ch.m)ch.m.destroy();
+  ch.m=new Chart(document.getElementById('cMonth'),{
+    data:{labels:m.map(x=>x.month),
+      datasets:[
+        {type:'bar',label:'Revenue',data:m.map(x=>x.sales),yAxisID:'y',backgroundColor:'#c3cbd6',borderRadius:2},
+        {type:'line',label:'Margin',data:m.map(x=>x.margin),yAxisID:'y2',
+         borderColor:C.accent,backgroundColor:C.accent,borderWidth:2,tension:.3,pointRadius:0,pointHoverRadius:4}
+      ]},
+    options:{responsive:true,maintainAspectRatio:false,interaction:{mode:'index',intersect:false},
+      plugins:{legend:{position:'bottom',labels:{boxWidth:10,boxHeight:10,padding:14,usePointStyle:true,pointStyle:'circle'}},
+        tooltip:{callbacks:{label:c=>c.datasetIndex===0?'Revenue: '+money(c.parsed.y):'Margin: '+c.parsed.y.toFixed(1)+'%'}}},
+      scales:{y:{grid:{color:C.grid},ticks:{callback:v=>money(v)}},
+        y2:{position:'right',grid:{display:false},ticks:{callback:v=>v+'%'}},
+        x:{grid:{display:false},ticks:{maxTicksLimit:12,font:{size:9.5}}}}}});
+}
+
+let sk='profit', sd=1;
+function table(){
+  const s=scope();
+  let rows=s.subs.map(r=>({...r,status:r.profit<0?'Losing':r.margin<10?'Thin':'Healthy'}));
+  rows.sort((a,b)=>{const x=a[sk],y=b[sk];
+    return (typeof x==='string'?x.localeCompare(y):x-y)*sd});
+  document.querySelector('#tbl tbody').innerHTML=rows.map(r=>`
+    <tr><td>${r['Sub-Category']}</td><td>${r.Category}</td>
+    <td class="num">${money(r.sales)}</td>
+    <td class="num">${r.sales_share.toFixed(1)}%</td>
+    <td class="num ${r.profit<0?'neg':''}">${money(r.profit)}</td>
+    <td class="num ${r.margin<0?'neg':''}">${r.margin.toFixed(1)}%</td>
+    <td class="num">${(r.avg_disc*100).toFixed(0)}%</td>
+    <td class="num"><span class="pill ${r.status==='Losing'?'r':r.status==='Thin'?'y':'g'}">${r.status}</span></td></tr>`).join('');
+}
+document.querySelectorAll('#tbl thead th').forEach(th=>th.addEventListener('click',()=>{
+  const k=th.dataset.k; if(k===sk) sd*=-1; else {sk=k; sd=1;} table();}));
+
+function render(){kpis();chSub();table();}
+document.getElementById('fCat').addEventListener('change',render);
+document.getElementById('fReg').addEventListener('change',render);
+
+render();chDisc();chVol();chState();chMonth();
+</script>
+</body>
+</html>
